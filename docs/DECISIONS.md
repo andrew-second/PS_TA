@@ -24,6 +24,9 @@ Working notes for the final write-up.
 | Decision | Why | Tradeoff |
 |---|---|---|
 | Archived candidates return 404 on every route | One simple rule; the brief allows archive or delete | No archive view or restore |
+| Duplicate emails are allowed | The same person can apply for two roles | The same application can be entered twice |
+| Resume text is required when adding a candidate | The brief marks phone and source as optional, but not this; the summary depends on it | A candidate with no resume yet can't be added |
+| The list route leaves out resume text | The list view doesn't show it, so there's no reason to send every full resume | The detail page needs its own request |
 | Role filter is a case-insensitive text search | Role is free text, so a dropdown would split "Engineer" and "engineer" | Less precise than a fixed list of roles |
 | `useState` for switching views, no router | The app has only a few views, and it avoids another dependency | Refreshing returns to the list, and candidates have no shareable URLs |
 

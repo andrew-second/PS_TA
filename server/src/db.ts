@@ -1,6 +1,13 @@
 // All SQL lives in this file, so routes call plain functions and never touch the database directly.
 import { DatabaseSync } from 'node:sqlite';
 
+// Pipeline order. If this changes, also update the CHECK in SCHEMA and ORDER_BY below.
+export const STAGES = ['Applied', 'Screening', 'Interview', 'Offer', 'Rejected'] as const;
+export type Stage = (typeof STAGES)[number];
+
+export const SORTS = ['date', 'stage'] as const;
+export type Sort = (typeof SORTS)[number];
+
 export type Candidate = {
   id: number;
   name: string;
@@ -8,10 +15,22 @@ export type Candidate = {
   phone: string | null;
   role: string;
   resume_text: string;
-  stage: string;
+  stage: Stage;
   source: string | null;
   archived_at: string | null;
   created_at: string;
+};
+
+// The list view only needs these fields, so it doesn't send every full resume to the browser.
+export type CandidateListItem = Pick<
+  Candidate,
+  'id' | 'name' | 'email' | 'role' | 'stage' | 'source' | 'created_at'
+>;
+
+export type CandidateFilters = {
+  stage?: Stage;
+  role?: string;
+  sort: Sort;
 };
 
 export type NewCandidate = {
@@ -96,8 +115,59 @@ export function createCandidate(db: DatabaseSync, candidate: NewCandidate): Cand
   return getCandidate(db, Number(result.lastInsertRowid))!;
 }
 
+// An archived candidate counts as not found, so every route that uses this gets that rule for free.
 export function getCandidate(db: DatabaseSync, id: number): Candidate | undefined {
-  return db.prepare('SELECT * FROM candidates WHERE id = ?').get(id) as Candidate | undefined;
+  return db
+    .prepare('SELECT * FROM candidates WHERE id = ? AND archived_at IS NULL')
+    .get(id) as Candidate | undefined;
+}
+
+// The user only picks a key here, so their input never becomes part of the SQL text.
+const ORDER_BY: Record<Sort, string> = {
+  date: 'created_at DESC, id DESC',
+  stage: `CASE stage
+            WHEN 'Applied' THEN 1
+            WHEN 'Screening' THEN 2
+            WHEN 'Interview' THEN 3
+            WHEN 'Offer' THEN 4
+            WHEN 'Rejected' THEN 5
+          END, created_at DESC, id DESC`,
+};
+
+export function listCandidates(db: DatabaseSync, filters: CandidateFilters): CandidateListItem[] {
+  // Start with the rule that always applies, then add one condition per filter in use.
+  const conditions = ['archived_at IS NULL'];
+  const values: string[] = [];
+
+  if (filters.stage) {
+    conditions.push('stage = ?');
+    values.push(filters.stage);
+  }
+  if (filters.role) {
+    // Case-insensitive "contains". instr, unlike LIKE, gives % and _ no special meaning.
+    conditions.push('instr(lower(role), lower(?)) > 0');
+    values.push(filters.role);
+  }
+
+  return db
+    .prepare(
+      `SELECT id, name, email, role, stage, source, created_at
+       FROM candidates
+       WHERE ${conditions.join(' AND ')}
+       ORDER BY ${ORDER_BY[filters.sort]}`,
+    )
+    .all(...values) as CandidateListItem[];
+}
+
+export function updateStage(db: DatabaseSync, id: number, stage: Stage): void {
+  db.prepare('UPDATE candidates SET stage = ? WHERE id = ?').run(stage, id);
+}
+
+// Soft delete: the row stays in the database, but getCandidate and listCandidates now hide it.
+export function archiveCandidate(db: DatabaseSync, id: number): void {
+  db.prepare(
+    `UPDATE candidates SET archived_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`,
+  ).run(id);
 }
 
 export function addNote(db: DatabaseSync, candidateId: number, body: string): Note {
