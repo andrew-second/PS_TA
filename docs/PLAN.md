@@ -2,7 +2,7 @@
 
 Goal: a solid end-to-end slice with clear reasoning. If time runs short, cut from the "Only if time allows" list, not from the core milestones.
 
-Status: setup and Milestones 1 and 2 are done. Next is Milestone 3.
+Status: setup and Milestones 1 to 3 are done. Next is Milestone 4.
 
 **Deadline: 6 November 2026, 5 pm. Aim to submit by 3 pm to leave a buffer.**
 

@@ -1,23 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import AddCandidateForm from './AddCandidateForm';
+import CandidateDetail from './CandidateDetail';
+import CandidateList from './CandidateList';
+import type { Filters } from './api';
 
 export default function App() {
-  const [status, setStatus] = useState('checking...');
+  // These decide which view is showing. No router: a refresh returns to the list.
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
 
-  // Ask the Express server whether it's running when the page loads.
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus('unreachable'));
-  }, []);
+  // Kept here rather than in CandidateList, so filters survive a visit to a candidate's page.
+  const [filters, setFilters] = useState<Filters>({ stage: '', role: '', sort: 'date' });
+
+  function showCandidate(id: number) {
+    setAdding(false);
+    setSelectedId(id);
+  }
 
   return (
     <main>
       <h1>Candidate Tracker</h1>
-      <p>Server status: {status}</p>
+      {selectedId !== null ? (
+        <CandidateDetail id={selectedId} onBack={() => setSelectedId(null)} />
+      ) : adding ? (
+        <AddCandidateForm onCreated={showCandidate} onCancel={() => setAdding(false)} />
+      ) : (
+        <CandidateList
+          filters={filters}
+          onFiltersChange={setFilters}
+          onSelect={showCandidate}
+          onAdd={() => setAdding(true)}
+        />
+      )}
     </main>
   );
 }
