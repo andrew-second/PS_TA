@@ -1,0 +1,36 @@
+Maya Thornton
+maya.thornton@example.com | +61 400 000 000 | Sydney, Australia
+
+SUMMARY
+Full-stack software engineer with two years of experience building web applications in
+TypeScript, React and Node.js. Enjoys working across the stack and improving test coverage.
+
+EXPERIENCE
+
+Software Engineer, Harbourline Logistics (fictional)
+February 2025 to present
+- Built a shipment tracking dashboard in React and TypeScript, used by 40 operations staff.
+- Designed REST APIs in Node.js and Express, backed by PostgreSQL.
+- Reduced average page load time from 4 seconds to 1.5 seconds by adding pagination and indexes.
+- Added automated tests with Vitest and set up a GitHub Actions build pipeline.
+
+Junior Developer, Bluegum Digital (fictional)
+January 2024 to January 2025
+- Maintained client websites using JavaScript, HTML and CSS.
+- Migrated a legacy booking form to React, which reduced support tickets by 20 percent.
+- Worked in a four-person agile team, taking part in code reviews and sprint planning.
+
+EDUCATION
+
+Bachelor of Science in Computer Science, University of Sydney, 2023
+
+SKILLS
+
+Languages: TypeScript, JavaScript, Python, SQL
+Frameworks: React, Node.js, Express
+Tools: PostgreSQL, Git, GitHub Actions, Docker, AWS (EC2, S3)
+
+PROJECTS
+
+Budget Buddy: a personal finance app built with React and SQLite, which categorises
+transactions and shows monthly spending charts.

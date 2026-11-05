@@ -2,7 +2,7 @@
 
 Goal: a solid end-to-end slice with clear reasoning. If time runs short, cut from the "Only if time allows" list, not from the core milestones.
 
-Status: setup and Milestones 1 to 3 are done. Next is Milestone 4.
+Status: setup and Milestones 1 to 5 are done. Next is the code review, then Milestone 6.
 
 **Deadline: 6 November 2026, 5 pm. Aim to submit by 3 pm to leave a buffer.**
 
@@ -68,7 +68,7 @@ An archived candidate counts as not found: every `:id` route returns 404 for one
 - Check: complete the full flow by hand in a browser.
 
 ### 4. AI summary (the part most likely to be scrutinised)
-- Keep everything in one module, `server/src/summarizer/`, so it can be explained on its own. It takes resume text and returns a result, with no database access; the route saves that result. Check the current Anthropic SDK docs before writing it.
+- Keep everything in one module, `server/src/summarizer/`, so it can be explained on its own. It takes resume text and returns a result, with no database access; the route saves that result. Check the current Gemini SDK before writing it.
 - Treat resume text as untrusted data: fixed instructions, clearly delimited resume text, no tools for the model beyond any used to structure its output, and a length limit.
 - Summarise the resume only. The job description in the seed data stays out of the prompt, because the brief asks for a summary rather than a match against the role.
 - Validate the reply with Zod. Bad or failed replies become `failed` or `insufficient`, never displayed as a summary.
@@ -81,8 +81,8 @@ An archived candidate counts as not found: every `:id` route returns 404 for one
 - Check with the real model: normal, garbled and injection resumes. Record the results, because they support the provider choice.
 
 ### 5. Seed data
-- Add `npm run seed`, using the provided dataset. Until it arrives, use clearly labelled placeholder data with one garbled and one injection resume, then swap it out.
-- Re-run the real-model check on the provided dataset.
+- Add `npm run seed`, using generated sample data, which the recruiter confirmed is acceptable. Include garbled and adversarial resumes.
+- Re-run the real-model check on that data.
 
 ### 6. Submission
 - README: clone, install, run, plus what to expect with no API key.
@@ -103,4 +103,4 @@ Run `/code-review` once, after Milestone 4. Treat each finding as a suggestion t
 
 ## Blockers
 
-Ask the recruiter for the seed dataset and confirmation that this is the final brief. If the dataset hasn't arrived before submission, submit with the placeholder data and say so clearly in the README and write-up.
+None. The recruiter confirmed we can generate our own sample data, so say so in the README and write-up.

@@ -76,6 +76,12 @@ dd {
   color: #b00020;
 }
 
+.warning {
+  padding: 0.5rem;
+  border: 1px solid #b26a00;
+  background: #fff4e0;
+}
+
 /* Keeps line breaks in resumes and notes, and stops long lines overflowing. */
 .plain-text {
   white-space: pre-wrap;

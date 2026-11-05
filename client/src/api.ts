@@ -26,7 +26,24 @@ export type Note = {
   created_at: string;
 };
 
-export type CandidateWithNotes = Candidate & { notes: Note[] };
+export type Summary = {
+  id: number;
+  status: 'ok' | 'insufficient' | 'failed';
+  skills: string[];
+  highlights: string[];
+  suspicious_content: boolean;
+  error: string | null;
+  model: string | null;
+  prompt_version: string;
+  created_at: string;
+};
+
+export type SummaryState = {
+  summary: Summary | null;
+  summary_problem: Summary | null;
+};
+
+export type CandidateWithNotes = Candidate & SummaryState & { notes: Note[] };
 
 export type NewCandidate = {
   name: string;
@@ -91,6 +108,10 @@ export function updateStage(id: number, stage: Stage) {
 
 export function addNote(id: number, body: string) {
   return request<Note>(`/candidates/${id}/notes`, 'POST', { body });
+}
+
+export function generateSummary(id: number) {
+  return request<SummaryState>(`/candidates/${id}/summary`, 'POST');
 }
 
 export function archiveCandidate(id: number) {

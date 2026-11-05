@@ -1,24 +1,53 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { addNote, archiveCandidate, getCandidate, STAGES, updateStage } from './api';
+import {
+  addNote,
+  archiveCandidate,
+  generateSummary,
+  getCandidate,
+  STAGES,
+  updateStage,
+} from './api';
 import type { CandidateWithNotes, Stage } from './api';
+import SummarySection from './SummarySection';
 
 type Props = {
   id: number;
+  generateOnLoad: boolean;
   onBack: () => void;
 };
 
-export default function CandidateDetail({ id, onBack }: Props) {
+export default function CandidateDetail({ id, generateOnLoad, onBack }: Props) {
   const [candidate, setCandidate] = useState<CandidateWithNotes | null>(null);
   const [noteBody, setNoteBody] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
 
+  async function handleGenerate() {
+    setGenerating(true);
+    setError('');
+    try {
+      await generateSummary(id);
+      setCandidate(await getCandidate(id));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   useEffect(() => {
+    // StrictMode runs this effect twice in development. The first run is marked stale,
+    // so only the second one reaches handleGenerate, and only one summary is requested.
     let stale = false;
     getCandidate(id)
       .then((loaded) => {
-        if (!stale) setCandidate(loaded);
+        if (stale) return;
+        setCandidate(loaded);
+        if (generateOnLoad) {
+          handleGenerate();
+        }
       })
       .catch((err: Error) => {
         if (!stale) setError(err.message);
@@ -106,6 +135,13 @@ export default function CandidateDetail({ id, onBack }: Props) {
           ))}
         </select>
       </label>
+
+      <SummarySection
+        summary={candidate.summary}
+        problem={candidate.summary_problem}
+        generating={generating}
+        onGenerate={handleGenerate}
+      />
 
       <h3>Notes</h3>
       {candidate.notes.length === 0 && <p>No notes yet.</p>}

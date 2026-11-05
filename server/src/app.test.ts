@@ -5,6 +5,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from './app.js';
 import { openDatabase, STAGES } from './db.js';
+import type { Summarize, SummaryResult } from './summarizer/index.js';
 
 const jane = {
   name: 'Jane Doe',
@@ -231,6 +232,127 @@ describe('ids that find no candidate', () => {
       const res = await send(method, path, body);
       expect(res.status, `${method} ${path}`).toBe(404);
     }
+  });
+});
+
+describe('summaries', () => {
+  const result = (overrides: Partial<SummaryResult>): SummaryResult => ({
+    status: 'ok',
+    skills: ['Node.js'],
+    highlights: ['Five years at Acme'],
+    suspicious_content: false,
+    error: null,
+    model: 'test-model',
+    prompt_version: 'test',
+    ...overrides,
+  });
+
+  // Starts a second copy of the app, whose summarizer returns the given results in turn.
+  async function withSummarizer(results: SummaryResult[], run: (url: string) => Promise<void>) {
+    const fake: Summarize = async () => results.shift()!;
+    const summaryServer = await new Promise<Server>((resolve) => {
+      const started = createApp(db, fake).listen(0, () => resolve(started));
+    });
+    try {
+      await run(`http://localhost:${(summaryServer.address() as AddressInfo).port}`);
+    } finally {
+      summaryServer.closeAllConnections();
+      summaryServer.close();
+    }
+  }
+
+  async function detail(id: number) {
+    const res = await send('GET', `/api/candidates/${id}`);
+    return (await res.json()) as {
+      summary: { skills: string[]; suspicious_content: boolean; status: string } | null;
+      summary_problem: { status: string; error: string | null } | null;
+    };
+  }
+
+  it('starts with no summary', async () => {
+    const { id } = await addCandidate();
+
+    expect(await detail(id)).toMatchObject({ summary: null, summary_problem: null });
+  });
+
+  it('saves a good summary, restoring its lists and flag', async () => {
+    const { id } = await addCandidate();
+
+    await withSummarizer([result({ suspicious_content: true })], async (url) => {
+      const res = await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+      expect(res.status).toBe(200);
+    });
+
+    expect(await detail(id)).toMatchObject({
+      summary: { status: 'ok', skills: ['Node.js'], suspicious_content: true },
+      summary_problem: null,
+    });
+  });
+
+  it('keeps showing the good summary when a regenerate fails, and reports the failure', async () => {
+    const { id } = await addCandidate();
+    const attempts = [result({}), result({ status: 'failed', error: 'timeout', skills: [] })];
+
+    await withSummarizer(attempts, async (url) => {
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+    });
+
+    expect(await detail(id)).toMatchObject({
+      summary: { status: 'ok', skills: ['Node.js'] },
+      summary_problem: { status: 'failed', error: 'timeout' },
+    });
+  });
+
+  it('clears the problem once a later attempt succeeds', async () => {
+    const { id } = await addCandidate();
+    const attempts = [result({ status: 'failed', error: 'timeout', skills: [] }), result({})];
+
+    await withSummarizer(attempts, async (url) => {
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+    });
+
+    expect(await detail(id)).toMatchObject({ summary: { status: 'ok' }, summary_problem: null });
+  });
+
+  it('never presents an insufficient result as a summary', async () => {
+    const { id } = await addCandidate();
+
+    await withSummarizer([result({ status: 'insufficient', skills: [] })], async (url) => {
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+    });
+
+    expect(await detail(id)).toMatchObject({
+      summary: null,
+      summary_problem: { status: 'insufficient' },
+    });
+  });
+
+  it('returns 404 for an unknown or archived candidate, without calling the summarizer', async () => {
+    const { id } = await addCandidate();
+    await send('DELETE', `/api/candidates/${id}`);
+    let calls = 0;
+    const counting: Summarize = async () => {
+      calls += 1;
+      return result({});
+    };
+    const countingServer = await new Promise<Server>((resolve) => {
+      const started = createApp(db, counting).listen(0, () => resolve(started));
+    });
+    const url = `http://localhost:${(countingServer.address() as AddressInfo).port}`;
+
+    const statuses = await Promise.all(
+      [id, 999, 'abc'].map(async (target) => {
+        const res = await fetch(`${url}/api/candidates/${target}/summary`, { method: 'POST' });
+        return res.status;
+      }),
+    );
+    countingServer.closeAllConnections();
+    countingServer.close();
+
+    expect(statuses).toEqual([404, 404, 404]);
+    expect(calls).toBe(0);
   });
 });
 

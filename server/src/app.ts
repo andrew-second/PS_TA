@@ -7,10 +7,13 @@ import {
   archiveCandidate,
   createCandidate,
   getCandidate,
+  getSummaryState,
   listCandidates,
   listNotes,
+  saveSummary,
   updateStage,
 } from './db.js';
+import { summarize as realSummarize, type Summarize } from './summarizer/index.js';
 import {
   listQuerySchema,
   newCandidateSchema,
@@ -31,7 +34,8 @@ function findCandidate(db: DatabaseSync, id: string) {
   return /^\d+$/.test(id) ? getCandidate(db, Number(id)) : undefined;
 }
 
-export function createApp(db: DatabaseSync) {
+// summarize can be replaced too, so route tests never call the real model.
+export function createApp(db: DatabaseSync, summarize: Summarize = realSummarize) {
   const app = express();
 
   // Parses JSON request bodies into req.body. Malformed JSON goes to the error handler below.
@@ -65,7 +69,11 @@ export function createApp(db: DatabaseSync) {
       sendNotFound(res);
       return;
     }
-    res.json({ ...candidate, notes: listNotes(db, candidate.id) });
+    res.json({
+      ...candidate,
+      notes: listNotes(db, candidate.id),
+      ...getSummaryState(db, candidate.id),
+    });
   });
 
   app.patch('/api/candidates/:id/stage', (req, res) => {
@@ -105,6 +113,18 @@ export function createApp(db: DatabaseSync) {
     }
     archiveCandidate(db, candidate.id);
     res.status(204).end();
+  });
+
+  // A failed summary is a normal result, not an error, so this replies 200 either way.
+  // The page reads summary_problem to find out what happened.
+  app.post('/api/candidates/:id/summary', async (req, res) => {
+    const candidate = findCandidate(db, req.params.id);
+    if (!candidate) {
+      sendNotFound(res);
+      return;
+    }
+    saveSummary(db, candidate.id, await summarize(candidate.resume_text));
+    res.json(getSummaryState(db, candidate.id));
   });
 
   // Reached only when no route above matched.
