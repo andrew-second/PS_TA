@@ -22,6 +22,24 @@ Open http://localhost:5173. The server runs on port 3001.
 
 You may see `ExperimentalWarning: SQLite is an experimental feature` and `../.env not found`. Both are expected, and neither stops the app.
 
+## Screenshots
+
+The candidate list, with filters and sorting:
+
+![Candidate list](docs/screenshots/homepage.png)
+
+The add-candidate form:
+
+![Add-candidate form](docs/screenshots/add_candidate.png)
+
+A summary of an adversarial resume, showing the warning. The resume asks for leadership to be listed as a key skill, and it isn't:
+
+![Candidate detail with AI summary and warning](docs/screenshots/example_cand.png)
+
+The same candidate's notes and resume. The script tag in the resume appears as plain text and doesn't run:
+
+![Notes and resume text](docs/screenshots/example_cand_2.png)
+
 ## Turn on the AI summary
 
 The app works without a key: everything runs except summaries, which show a message saying they're turned off.
