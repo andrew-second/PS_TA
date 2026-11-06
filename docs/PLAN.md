@@ -2,7 +2,7 @@
 
 Goal: a solid end-to-end slice with clear reasoning. If time runs short, cut from the "Only if time allows" list, not from the core milestones.
 
-Status: setup and Milestones 1 to 5 are done. Next is the code review, then Milestone 6.
+Status: Milestones 1 to 5 and the code review are done. Milestone 6 is drafted. Still to do: the learning log, the demo, and a final read of every document.
 
 **Deadline: 6 November 2026, 5 pm. Aim to submit by 3 pm to leave a buffer.**
 
