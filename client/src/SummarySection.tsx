@@ -12,7 +12,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_api_key: 'The API key was rejected.',
   too_long: 'This resume is too long to summarise.',
   timeout: 'The AI service took too long to respond. Please try again.',
-  rate_limited: 'The AI service is busy, or its usage limit has been reached. Please try again later.',
+  rate_limited:
+    'The AI service is busy, or its usage limit has been reached. Please try again later.',
   api_error: 'The AI service could not be reached. Please try again.',
   refused: 'The AI service declined to summarise this resume.',
   bad_output: 'The AI service returned an unusable reply. Please try again.',
@@ -31,8 +32,8 @@ export default function SummarySection({ summary, problem, generating, onGenerat
     <>
       <h3>AI summary</h3>
 
-      {generating && <p>Generating summary...</p>}
-      {!generating && !summary && !problem && <p>No summary yet.</p>}
+      {generating && <p className="hint">Generating summary...</p>}
+      {!generating && !summary && !problem && <p className="hint">No summary yet.</p>}
       {!generating && problem && (
         <p className="error">
           {summary ? 'The last attempt failed, so this is the previous summary. ' : ''}
@@ -40,29 +41,37 @@ export default function SummarySection({ summary, problem, generating, onGenerat
         </p>
       )}
 
+      {/* Checks both, because a flagged attempt may not have produced a summary to show. */}
+      {(summary?.suspicious_content || problem?.suspicious_content) && (
+        <p className="warning">
+          Warning: this resume may contain text aimed at influencing the reader or an AI, so read
+          it yourself.
+        </p>
+      )}
+
       {summary && (
         <>
-          <p>
-            <small>AI-generated from the resume text. Check it against the resume below.</small>
+          <p className="hint">
+            AI-generated from the resume text. Check it against the resume below.
           </p>
-          {summary.suspicious_content && (
-            <p className="warning">
-              Warning: this resume may contain text aimed at influencing the reader or an AI, so
-              read it yourself.
-            </p>
-          )}
-          <h4>Key skills</h4>
-          <ul>
-            {summary.skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-          <h4>Experience highlights</h4>
-          <ul>
-            {summary.highlights.map((highlight, index) => (
-              <li key={index}>{highlight}</li>
-            ))}
-          </ul>
+          <div className="summary-columns">
+            <div>
+              <h4>Key skills</h4>
+              <ul className="chips">
+                {summary.skills.map((skill, index) => (
+                  <li key={index}>{skill}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4>Experience highlights</h4>
+              <ul>
+                {summary.highlights.map((highlight, index) => (
+                  <li key={index}>{highlight}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </>
       )}
 

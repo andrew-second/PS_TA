@@ -9,7 +9,9 @@ import { buildUserMessage, PROMPT_VERSION, SYSTEM_PROMPT } from './prompt.js';
 const MODEL = 'gemini-3.5-flash-lite';
 const TIMEOUT_MS = 30_000;
 // The free tier often answers 503 "high demand", and usually works moments later.
-// Only 503 is retried: retrying a 429 would use up more of a daily limit with no chance of working.
+// Listing only 503 stops the SDK retrying a 429, which would use up more of a daily limit with no
+// chance of working. The SDK also retries its own timeouts, whatever this list says, so a request
+// that keeps hanging can take about 96 seconds (3 x 30s, plus delays of 2s and 4s).
 const RETRY_OPTIONS = { attempts: 3, initialDelay: 2, httpStatusCodes: [503] };
 const MAX_OUTPUT_TOKENS = 8_000;
 // Same limit as the API's validation. Seed data skips that check, so it's enforced here too.

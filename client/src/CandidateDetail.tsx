@@ -60,8 +60,10 @@ export default function CandidateDetail({ id, generateOnLoad, onBack }: Props) {
   if (!candidate) {
     return (
       <section>
-        <button onClick={onBack}>Back to list</button>
-        {error ? <p className="error">{error}</p> : <p>Loading...</p>}
+        <button className="back" onClick={onBack}>
+          Back to list
+        </button>
+        {error ? <p className="error">{error}</p> : <p className="card empty">Loading...</p>}
       </section>
     );
   }
@@ -106,72 +108,89 @@ export default function CandidateDetail({ id, generateOnLoad, onBack }: Props) {
 
   return (
     <section>
-      <button onClick={onBack}>Back to list</button>
+      <button className="back" onClick={onBack}>
+        Back to list
+      </button>
 
-      <h2>{candidate.name}</h2>
+      <div className="page-title">
+        <div className="candidate-heading">
+          <h2>{candidate.name}</h2>
+          <span className={`badge badge-${candidate.stage.toLowerCase()}`}>{candidate.stage}</span>
+        </div>
+      </div>
       {error && <p className="error">{error}</p>}
 
-      <dl>
-        <dt>Email</dt>
-        <dd>{candidate.email}</dd>
-        <dt>Phone</dt>
-        <dd>{candidate.phone ?? 'Not provided'}</dd>
-        <dt>Role</dt>
-        <dd>{candidate.role}</dd>
-        <dt>Source</dt>
-        <dd>{candidate.source ?? 'Not provided'}</dd>
-        <dt>Added</dt>
-        <dd>{new Date(candidate.created_at).toLocaleString()}</dd>
-      </dl>
+      <div className="card">
+        <dl className="profile">
+          <dt>Email</dt>
+          <dd>{candidate.email}</dd>
+          <dt>Phone</dt>
+          <dd>{candidate.phone ?? 'Not provided'}</dd>
+          <dt>Role</dt>
+          <dd>{candidate.role}</dd>
+          <dt>Source</dt>
+          <dd>{candidate.source ?? 'Not provided'}</dd>
+          <dt>Added</dt>
+          <dd>{new Date(candidate.created_at).toLocaleString()}</dd>
+        </dl>
 
-      <label>
-        Stage
-        <select
-          value={candidate.stage}
-          onChange={(e) => handleStageChange(e.target.value as Stage)}
-        >
-          {STAGES.map((stage) => (
-            <option key={stage}>{stage}</option>
-          ))}
-        </select>
-      </label>
-
-      <SummarySection
-        summary={candidate.summary}
-        problem={candidate.summary_problem}
-        generating={generating}
-        onGenerate={handleGenerate}
-      />
-
-      <h3>Notes</h3>
-      {candidate.notes.length === 0 && <p>No notes yet.</p>}
-      <ul>
-        {candidate.notes.map((note) => (
-          <li key={note.id}>
-            <small>{new Date(note.created_at).toLocaleString()}</small>
-            <p className="plain-text">{note.body}</p>
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={handleAddNote}>
-        <label>
-          Add a note
-          <textarea
-            required
-            rows={3}
-            value={noteBody}
-            onChange={(e) => setNoteBody(e.target.value)}
-          />
+        <label className="stage-control">
+          Stage
+          <select
+            value={candidate.stage}
+            onChange={(e) => handleStageChange(e.target.value as Stage)}
+          >
+            {STAGES.map((stage) => (
+              <option key={stage}>{stage}</option>
+            ))}
+          </select>
         </label>
-        <button type="submit" disabled={savingNote}>
-          {savingNote ? 'Saving...' : 'Add note'}
-        </button>
-      </form>
+      </div>
 
-      <h3>Resume</h3>
-      <p className="plain-text">{candidate.resume_text}</p>
+      <div className="card">
+        <SummarySection
+          summary={candidate.summary}
+          problem={candidate.summary_problem}
+          generating={generating}
+          onGenerate={handleGenerate}
+        />
+      </div>
 
-      <button onClick={handleArchive}>Archive candidate</button>
+      <div className="card">
+        <h3>Notes</h3>
+        {candidate.notes.length === 0 && <p className="hint">No notes yet.</p>}
+        <ul className="notes">
+          {candidate.notes.map((note) => (
+            <li key={note.id}>
+              <small>{new Date(note.created_at).toLocaleString()}</small>
+              <p className="plain-text">{note.body}</p>
+            </li>
+          ))}
+        </ul>
+        <form onSubmit={handleAddNote}>
+          <label>
+            Add a note
+            <textarea
+              required
+              rows={3}
+              value={noteBody}
+              onChange={(e) => setNoteBody(e.target.value)}
+            />
+          </label>
+          <button className="primary" type="submit" disabled={savingNote}>
+            {savingNote ? 'Saving...' : 'Add note'}
+          </button>
+        </form>
+      </div>
+
+      <div className="card">
+        <h3>Resume</h3>
+        <p className="plain-text resume">{candidate.resume_text}</p>
+      </div>
+
+      <button className="danger" onClick={handleArchive}>
+        Archive candidate
+      </button>
     </section>
   );
 }

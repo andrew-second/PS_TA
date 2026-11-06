@@ -265,7 +265,11 @@ describe('summaries', () => {
     const res = await send('GET', `/api/candidates/${id}`);
     return (await res.json()) as {
       summary: { skills: string[]; suspicious_content: boolean; status: string } | null;
-      summary_problem: { status: string; error: string | null } | null;
+      summary_problem: {
+        status: string;
+        error: string | null;
+        suspicious_content: boolean;
+      } | null;
     };
   }
 
@@ -326,6 +330,20 @@ describe('summaries', () => {
     expect(await detail(id)).toMatchObject({
       summary: null,
       summary_problem: { status: 'insufficient' },
+    });
+  });
+
+  it('keeps the suspicious flag on an attempt that is not a summary, so the page can warn', async () => {
+    const { id } = await addCandidate();
+    const flagged = result({ status: 'insufficient', skills: [], suspicious_content: true });
+
+    await withSummarizer([flagged], async (url) => {
+      await fetch(`${url}/api/candidates/${id}/summary`, { method: 'POST' });
+    });
+
+    expect(await detail(id)).toMatchObject({
+      summary: null,
+      summary_problem: { status: 'insufficient', suspicious_content: true },
     });
   });
 

@@ -37,9 +37,14 @@ export default function CandidateList({ filters, onFiltersChange, onSelect, onAd
 
   return (
     <section>
-      <button onClick={onAdd}>Add candidate</button>
+      <div className="page-title">
+        <h2>Candidates</h2>
+        <button className="primary" onClick={onAdd}>
+          Add candidate
+        </button>
+      </div>
 
-      <div className="filters">
+      <div className="card filters">
         <label>
           Stage
           <select
@@ -73,33 +78,41 @@ export default function CandidateList({ filters, onFiltersChange, onSelect, onAd
       </div>
 
       {error && <p className="error">{error}</p>}
-      {!error && !loading && candidates.length === 0 && <p>No candidates found.</p>}
+      {!error && !loading && candidates.length === 0 && (
+        <p className="card empty">No candidates found.</p>
+      )}
 
       {!error && candidates.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Stage</th>
-              <th>Added</th>
-            </tr>
-          </thead>
-          <tbody>
-            {candidates.map((candidate) => (
-              <tr key={candidate.id}>
-                <td>
-                  <button className="link" onClick={() => onSelect(candidate.id)}>
-                    {candidate.name}
-                  </button>
-                </td>
-                <td>{candidate.role}</td>
-                <td>{candidate.stage}</td>
-                <td>{new Date(candidate.created_at).toLocaleDateString()}</td>
+        <div className="card table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Stage</th>
+                <th>Added</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {candidates.map((candidate) => (
+                <tr key={candidate.id}>
+                  <td>
+                    <button className="link" onClick={() => onSelect(candidate.id)}>
+                      {candidate.name}
+                    </button>
+                  </td>
+                  <td>{candidate.role}</td>
+                  <td>
+                    <span className={`badge badge-${candidate.stage.toLowerCase()}`}>
+                      {candidate.stage}
+                    </span>
+                  </td>
+                  <td>{new Date(candidate.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

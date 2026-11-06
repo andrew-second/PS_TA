@@ -45,8 +45,10 @@ export default function AddCandidateForm({ onCreated, onCancel }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add candidate</h2>
+    <form className="card" onSubmit={handleSubmit}>
+      <div className="page-title">
+        <h2>Add candidate</h2>
+      </div>
 
       {error && <p className="error">{error}</p>}
       {Object.entries(fieldErrors).map(([field, messages]) => (
@@ -55,35 +57,37 @@ export default function AddCandidateForm({ onCreated, onCancel }: Props) {
         </p>
       ))}
 
-      <label>
-        Name
-        <input required value={form.name} onChange={(e) => setField('name', e.target.value)} />
-      </label>
-      <label>
-        Email
-        <input
-          required
-          type="email"
-          value={form.email}
-          onChange={(e) => setField('email', e.target.value)}
-        />
-      </label>
-      <label>
-        Phone (optional)
-        <input value={form.phone} onChange={(e) => setField('phone', e.target.value)} />
-      </label>
-      <label>
-        Role applied for
-        <input required value={form.role} onChange={(e) => setField('role', e.target.value)} />
-      </label>
-      <label>
-        Source (optional)
-        <input
-          value={form.source}
-          placeholder="Referral, LinkedIn..."
-          onChange={(e) => setField('source', e.target.value)}
-        />
-      </label>
+      <div className="form-grid">
+        <label>
+          Name
+          <input required value={form.name} onChange={(e) => setField('name', e.target.value)} />
+        </label>
+        <label>
+          Email
+          <input
+            required
+            type="email"
+            value={form.email}
+            onChange={(e) => setField('email', e.target.value)}
+          />
+        </label>
+        <label>
+          Phone (optional)
+          <input value={form.phone} onChange={(e) => setField('phone', e.target.value)} />
+        </label>
+        <label>
+          Role applied for
+          <input required value={form.role} onChange={(e) => setField('role', e.target.value)} />
+        </label>
+        <label>
+          Source (optional)
+          <input
+            value={form.source}
+            placeholder="Referral, LinkedIn..."
+            onChange={(e) => setField('source', e.target.value)}
+          />
+        </label>
+      </div>
       <label>
         Resume or cover letter: paste text, or upload a .txt file
         <textarea
@@ -93,10 +97,15 @@ export default function AddCandidateForm({ onCreated, onCancel }: Props) {
           onChange={(e) => setField('resume_text', e.target.value)}
         />
       </label>
-      <input type="file" accept=".txt,text/plain" aria-label="Upload resume" onChange={handleFile} />
+      <input
+        type="file"
+        accept=".txt,text/plain"
+        aria-label="Upload resume"
+        onChange={handleFile}
+      />
 
       <div className="actions">
-        <button type="submit" disabled={saving}>
+        <button className="primary" type="submit" disabled={saving}>
           {saving ? 'Saving...' : 'Save candidate'}
         </button>
         <button type="button" onClick={onCancel}>

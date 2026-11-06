@@ -22,27 +22,31 @@ export default function App() {
   }
 
   return (
-    <main>
-      <h1>Candidate Tracker</h1>
-      {selectedId !== null ? (
-        <CandidateDetail
-          id={selectedId}
-          generateOnLoad={justCreated}
-          onBack={() => setSelectedId(null)}
-        />
-      ) : adding ? (
-        <AddCandidateForm
-          onCreated={(id) => showCandidate(id, true)}
-          onCancel={() => setAdding(false)}
-        />
-      ) : (
-        <CandidateList
-          filters={filters}
-          onFiltersChange={setFilters}
-          onSelect={(id) => showCandidate(id)}
-          onAdd={() => setAdding(true)}
-        />
-      )}
-    </main>
+    <>
+      <header className="app-header">
+        <h1>Candidate Tracker</h1>
+      </header>
+      <main>
+        {selectedId !== null ? (
+          <CandidateDetail
+            id={selectedId}
+            generateOnLoad={justCreated}
+            onBack={() => setSelectedId(null)}
+          />
+        ) : adding ? (
+          <AddCandidateForm
+            onCreated={(id) => showCandidate(id, true)}
+            onCancel={() => setAdding(false)}
+          />
+        ) : (
+          <CandidateList
+            filters={filters}
+            onFiltersChange={setFilters}
+            onSelect={(id) => showCandidate(id)}
+            onAdd={() => setAdding(true)}
+          />
+        )}
+      </main>
+    </>
   );
 }

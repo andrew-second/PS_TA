@@ -23,7 +23,14 @@ Rules:
 
 // Removes any <resume> or </resume> tags in the text, so an applicant can't close our
 // delimiter early and make the words after it look like they sit outside the resume.
+// It repeats until nothing changes, because removing a tag from </res</resume>ume> would
+// otherwise leave a real </resume> behind.
 export function buildUserMessage(resumeText: string): string {
-  const safeText = resumeText.replace(/<\s*\/?\s*resume\b[^>]*>/gi, '');
+  let safeText = resumeText;
+  let previous;
+  do {
+    previous = safeText;
+    safeText = safeText.replace(/<\s*\/?\s*resume\b[^>]*>/gi, '');
+  } while (safeText !== previous);
   return `<resume>\n${safeText}\n</resume>`;
 }

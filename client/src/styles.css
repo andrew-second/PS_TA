@@ -1,19 +1,168 @@
-/* Deliberately minimal: just enough to make the app readable. */
+/* Colours and spacing live here, so the look can be changed in one place. */
+:root {
+  --page: #f5f6fa;
+  --surface: #ffffff;
+  --border: #e2e5ee;
+  --text: #1c2233;
+  --muted: #5f6880;
+  --accent: #3f51b5;
+  --accent-dark: #303f9f;
+  --accent-soft: #eceefa;
+  --danger: #b3261e;
+  --danger-soft: #fdecea;
+  --warning: #8a5a00;
+  --warning-soft: #fff4e0;
+  --warning-border: #eebb66;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgb(28 34 51 / 8%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
   margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* Page layout */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  color: var(--accent);
+  font-size: 1.2rem;
 }
 
 main {
-  max-width: 800px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem 1.25rem 3rem;
 }
 
+.page-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.page-title h2 {
+  font-size: 1.5rem;
+}
+
+.candidate-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card > h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+/* Buttons */
+button {
+  padding: 0.5rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--page);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+button.danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+}
+
+button.back {
+  margin-bottom: 1rem;
+}
+
+button.link {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  text-align: left;
+}
+
+button.link:hover:not(:disabled) {
+  background: none;
+  text-decoration: underline;
+}
+
+/* Forms */
 label {
   display: block;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 input:not([type='file']),
@@ -21,19 +170,48 @@ select,
 textarea {
   display: block;
   width: 100%;
-  box-sizing: border-box;
-  padding: 0.35rem;
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
   font: inherit;
+  font-weight: 400;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  column-gap: 1rem;
 }
 
 .filters {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
-  margin: 1rem 0;
+  margin-bottom: 1rem;
 }
 
 .filters label {
-  flex: 1;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Candidate table */
+.table-wrap {
+  padding: 0;
+  overflow-x: auto;
 }
 
 table {
@@ -43,47 +221,183 @@ table {
 
 th,
 td {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
   text-align: left;
-  padding: 0.4rem;
-  border-bottom: 1px solid #ddd;
 }
 
-button.link {
-  padding: 0;
-  border: none;
-  background: none;
-  color: #0645ad;
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
+th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: var(--page);
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Stage badges. Each stage has its own colour, and its name is always shown too. */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-applied {
+  background: #e8eaf0;
+  color: #3d4560;
+}
+
+.badge-screening {
+  background: #e1effa;
+  color: #0b5a94;
+}
+
+.badge-interview {
+  background: #efe7fa;
+  color: #5b2da3;
+}
+
+.badge-offer {
+  background: #e2f5e6;
+  color: #1c6b33;
+}
+
+.badge-rejected {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Candidate profile */
+.profile {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.9rem 1rem;
+  margin: 0 0 1rem;
 }
 
 dt {
+  color: var(--muted);
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 dd {
-  margin: 0 0 0.5rem;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
-.actions {
+.stage-control {
+  max-width: 260px;
+  margin-bottom: 0;
+}
+
+/* AI summary */
+.summary-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-columns h4 {
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.summary-columns ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.chips {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0 !important;
+  list-style: none;
 }
 
+.chips li {
+  padding: 0.15rem 0.6rem;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  color: var(--accent-dark);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Notes */
+.notes {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.notes small {
+  color: var(--muted);
+}
+
+.notes p {
+  margin: 0.15rem 0 0;
+}
+
+/* Messages */
 .error {
-  color: #b00020;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--danger-soft);
+  border-radius: 8px;
+  color: var(--danger);
 }
 
 .warning {
-  padding: 0.5rem;
-  border: 1px solid #b26a00;
-  background: #fff4e0;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  border-radius: 8px;
+  color: var(--warning);
 }
 
 /* Keeps line breaks in resumes and notes, and stops long lines overflowing. */
 .plain-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.resume {
+  max-height: 24rem;
+  margin: 0;
+  padding: 0.75rem;
+  overflow-y: auto;
+  background: var(--page);
+  border-radius: 8px;
+  font-size: 0.92rem;
 }
