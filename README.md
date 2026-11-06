@@ -9,8 +9,8 @@ Built with React, Vite, Express, TypeScript and SQLite. The summary uses Google 
 You need [Node.js](https://nodejs.org) 24 or newer.
 
 ```
-git clone https://github.sydney.edu.au/awil5257/PS_TakeAway.git
-cd PS_TakeAway
+git clone https://github.com/andrew-second/PS_TA.git
+cd PS_TA
 npm install
 npm run seed
 npm run dev
